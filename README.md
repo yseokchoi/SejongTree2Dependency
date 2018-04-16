@@ -15,7 +15,7 @@
 > (non-rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -pos_list ./Rules/pos_list.txt -head_initial ./Rules/linear_rules.txt -head_initial_symbol ./Rules/symbol_rules.txt
 
 
-    Paramters
+    Parameters
     -root_dir: 세종 코퍼스 폴더 위치
     -file_name(optional): 세종 코퍼스 파일 이름(하나의 세종 코퍼스 파일만 읽고자 할 때)
     -save_file: 의존 구문 구조 저장할 파일 이름
