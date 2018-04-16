@@ -2,7 +2,7 @@
 # S2D : SejongTree To Dependency
 세종 구문 분석 말뭉치의 의존 구문 구조로의 변환 도구
 
-# Document : SejongTree2Dep.pdf
+## Document : SejongTree2Dep.pdf
 
 # Requirement
 - python 3.6
@@ -28,6 +28,7 @@
 
 # Format : CONLL-U
 *예제:* 
+
 엠마누엘 웅가로는 "실내 장식품을 디자인할 때 옷을 만들 때와는 다른 해방감을 느낀다"고 말한다.
 
 - **Rigid Head-final Version**
@@ -71,3 +72,9 @@
     |  14  |   "        |    "        |  PUNCT    |    SS         |   -   |   13   |    R         |  -   |SpaceAfter=No |
     |  15  |  고        |   고        |  ADP      |    JKQ        |   -   |   13   |    X_CMP     |  -   |      -       |
     |  16  |  말한다.    |   말 하 ㄴ다|  VERB     |   NNG XSV EF SF|   -   |    0   |    ROOT        |  -   |      -       |
+
+
+<hr/>
+
+
+GPL 2.0 License
