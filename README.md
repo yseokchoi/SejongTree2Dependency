@@ -12,7 +12,7 @@
 # Execution
 > (rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -pos_list ./Rules/pos_list.txt -head_initial ./Rules/linear_rules.txt -head_initial_symbol ./Rules/symbol_rules.txt
 
-> (non-rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -pos_list ./Rules/pos_list.txt -head_initial ./Rules/linear_rules.txt -head_initial_symbol ./Rules/symbol_rules.txt
+> (non-rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -pos_list ./Rules/pos_list.txt -head_initial ./Rules/linear_rules.txt -head_initial_symbol ./Rules/symbol_rules.txt -non_rigid_head
 
 
     Parameters
