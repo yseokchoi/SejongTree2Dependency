@@ -11,6 +11,7 @@
 
 # Execution
 > (rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -pos_list ./Rules/pos_list.txt -head_initial ./Rules/linear_rules.txt -head_initial_symbol ./Rules/symbol_rules.txt
+
 > (non-rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -pos_list ./Rules/pos_list.txt -head_initial ./Rules/linear_rules.txt -head_initial_symbol ./Rules/symbol_rules.txt
 
 
@@ -29,7 +30,7 @@
 *예제:* 
 엠마누엘 웅가로는 "실내 장식품을 디자인할 때 옷을 만들 때와는 다른 해방감을 느낀다"고 말한다.
 
-**Rigid Head-final Version**
+- **Rigid Head-final Version**
 
     |  ID  |    FORM    |    LEMMA    |  UPOSTAG  |    XPOSTAG    | FEATS |  HEAD  |    DEPREL    | DEPS |     MISC     |
     |:----:|:----------:|:-----------:|:---------:|:-------------:|:-----:|:------:|:------------:|:----:|:------------:|
@@ -50,7 +51,7 @@
     |  15  |  고        |   고        |  ADP      |    JKQ        |   -   |   16   |    VP_CMP    |  -   |      -       |
     |  16  |  말한다.    |   말 하 ㄴ다|  VERB     |   NNG XSV EF SF|   -   |    0   |    ROOT        |  -   |      -       |
 
-**Non-rigid Head final Version**
+- **Non-rigid Head final Version**
 
     |  ID  |    FORM    |    LEMMA    |  UPOSTAG  |    XPOSTAG    | FEATS |  HEAD  |    DEPREL    | DEPS |     MISC     |
     |:----:|:----------:|:-----------:|:---------:|:-------------:|:-----:|:------:|:------------:|:----:|:------------:|
