@@ -150,6 +150,8 @@ class ConstitiuentStructureTree(object):
         if node is None:
             if isinstance(stt[0], string_types) and isinstance(stt[1][0], string_types):
                 token = ''.join(stt[1])
+                if token[0] == '+':
+                    token = token[1:]
                 node = Node(stt[0], index=self.length, token=token)
                 self.length += 1
                 return node
@@ -351,14 +353,14 @@ class ConstitiuentStructureTree(object):
                 if node.index != -1:
                     lemma, xpostag = self.get_lemma_and_xpostag(node.token)
                     if node.linear_check:
-                        headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "-", node.index, "-", "-", "-"])
+                        headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", node.index, "_", "_", "_"])
                     else:
                         if node.head_index == -1:
-                            headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "-", 0, "ROOT", "-", "-"])
+                            headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", 0, "ROOT", "_", "_"])
                         elif node.head_label is None:
-                            headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "-", node.head_index+1, "-", "-", "-"])
+                            headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", node.head_index+1, "_", "_", "_"])
                         else:
-                            headers.setdefault(node.index, [node.token, lemma," ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "-", node.head_index+1, node.head_label, "-", "-"])
+                            headers.setdefault(node.index, [node.token, lemma," ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", node.head_index+1, node.head_label, "_", "_"])
         _post_order_traversal(self.root, result)
 
         return result
@@ -426,10 +428,10 @@ class ConstitiuentStructureTree(object):
                 if pattern_length == 1 and left and 'JX' in target.token.split('+')[-1] and len(target.token.split('+')) > 1:
                     token = target.token.split('+')[-2]
 
-                if pattern.search(token):
+                if pattern.match(token):
                     return True
             else:
-                if pattern.search(target):
+                if pattern.match(target):
                     return True
         return False
 
