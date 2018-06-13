@@ -353,14 +353,14 @@ class ConstitiuentStructureTree(object):
                 if node.index != -1:
                     lemma, xpostag = self.get_lemma_and_xpostag(node.token)
                     if node.linear_check:
-                        headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", node.index, "_", "_", "_"])
+                        headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "-", node.index, "-", "-", "-"])
                     else:
                         if node.head_index == -1:
-                            headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", 0, "ROOT", "_", "_"])
+                            headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "-", 0, "ROOT", "-", "-"])
                         elif node.head_label is None:
-                            headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", node.head_index+1, "_", "_", "_"])
+                            headers.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "-", node.head_index+1, "-", "-", "-"])
                         else:
-                            headers.setdefault(node.index, [node.token, lemma," ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", node.head_index+1, node.head_label, "_", "_"])
+                            headers.setdefault(node.index, [node.token, lemma," ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "-", node.head_index+1, node.head_label, "-", "-"])
         _post_order_traversal(self.root, result)
 
         return result
@@ -445,6 +445,15 @@ class ConstitiuentStructureTree(object):
                 break
 
             cross_head_check = head_number
+        return result
+
+    def check_cycle(self, headers):
+        result = True
+        id_header_pairs = [(idx+1, head[5], headers[head[5]-1][5]) for idx, head in sorted(headers.items(), key=lambda x:x[0]) if head[5] != 0]
+        for idx, _, head_idx in id_header_pairs:
+            if idx == head_idx:
+                result = False
+                break
         return result
 
     def edit_distance(self, first, second):

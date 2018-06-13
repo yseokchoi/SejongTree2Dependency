@@ -147,7 +147,7 @@ def main():
 
     start = time.time()
     cnt = 0
-    for ori_sent, struct, ref in tqdm(sent_tree_list, desc=" - (Converting)  "):
+    for ori_sent, struct, ref in tqdm(sent_tree_list, desc=" - (Converting)", mininterval=2):
         cnt += 1
         sent_id = cnt
         cst = ConstitiuentStructureTree(head_rules)
@@ -176,6 +176,11 @@ def main():
 
         check_crossing = cst.check_crossing(headers)
         if not check_crossing:
+            error_count += 1
+            continue
+
+        check_cycle = cst.check_cycle(headers)
+        if not check_cycle:
             error_count += 1
             continue
 
