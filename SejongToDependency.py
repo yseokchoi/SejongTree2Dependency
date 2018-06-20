@@ -101,6 +101,10 @@ def main():
 
     opt = parser.parse_args()
     rigid_head = not opt.non_rigid_head
+    if not rigid_head:
+        print("Coming Soon..")
+        exit()
+        
     if rigid_head:
         save_path = "{}-{}.txt".format(opt.save_file, "rigid_head")
     else:
