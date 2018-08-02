@@ -6,23 +6,19 @@
 
 # Requirement
 - python 3.6
-- tqdm
-- hgtk
 
 # Execution
-> (rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -pos_list ./Rules/pos_list.txt -head_initial ./Rules/linear_rules.txt -head_initial_symbol ./Rules/symbol_rules.txt
+> (rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -head_initial ./Rules/linear_rules.txt -head_final 1
 
-> (non-rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -pos_list ./Rules/pos_list.txt -head_initial ./Rules/linear_rules.txt -head_initial_symbol ./Rules/symbol_rules.txt -non_rigid_head
+> (non-rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -head_initial ./Rules/linear_rules.txt -head_final 0
 
 
     Parameters
     -root_dir: 세종 코퍼스 폴더 위치
     -file_name(optional): 세종 코퍼스 파일 이름(하나의 세종 코퍼스 파일만 읽고자 할 때)
     -save_file: 의존 구문 구조 저장할 파일 이름
-    -pos_list: 품사 정보 파일
     -head_initial: head-initial 예외 규칙(구분자 : \t)
-    -head_initial_symbol: head-initial 예외 규칙 중 심볼과 기능어 규칙(구분자 : \t)
-    -non_rigid_head(optional): Non-rigid Head Final에만 사용
+    -head_final: head-final일 경우 1 덜 엄격한 head-final일 경우 0
 
 
 
