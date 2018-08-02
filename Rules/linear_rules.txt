@@ -4,7 +4,7 @@ VP*  VNP*  S*	VP*  S*  VNP*	기/ETN	VNP	때문+VCP  일쑤+VCP  십상+VCP  마�
 VP*  VNP*  S*	VP*  S*  VNP*	기/ETN+JX 기/ETN+로/JKB	VP*	하	-	-
 VP*  VNP*  S*	VP*  VNP*	EC	VP*  S*	VX	-	-
 VP*  VNP*  S*	VP*  VNP*	게/EC	VP*  VNP*  S* 	마련+VCP	-	-
-VP*  VNP*  S*	VP*  VNP*	도록/EC  으면/EC  면/EC	VP*  VNP*  S* 	되/VV	-	-
+VP*  VNP*  S*	VP*  VNP*	게/EC  도록/EC  으면/EC  면/EC	VP*  VNP*  S* 	되/VV	-	-
 VP*  VNP*  S*	VP*  VNP*	으면/EC  면/EC	VP*  S*	안+되	-	-
 VP*  VNP*  S*	VP*  VNP*	어/EC  아/EC	VP*  S*	보/VV 오/VV	-	-
 NP_SBJ	VP_MOD	-	NP_SBJ	수/NNB  리/NNB  바/NNB  탓/NNB  적/NNB	-	있  없
