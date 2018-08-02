@@ -1,120 +1,25 @@
 from Tree import *
-from itertools import product
-from tqdm import tqdm
-import re, os, sys, copy, argparse, time
-
-def get_all_pos_list(key, all_pos_key, pos_list):
-    allsymbol = '@@ALL@@'
-    key_pattern = key.replace('*', '').strip()
-
-    all_pos_key.setdefault(key, [])
-    for pos in pos_list:
-        if re.match(key_pattern, pos) is not None:
-            all_pos_key[key].append('{}/{}'.format(allsymbol, pos))
-
-    return all_pos_key[key]
-
-def strToPattern(patternstr, pos_list=None, label=True):
-    if len(pos_list) == 0 or pos_list is None:
-        print("POS List is empty. please read the pos file")
-        exit()
-
-    all_pos_key = dict()
-
-    allsymbol = '@@ALL@@'
-    allsymbol_escape = re.escape(allsymbol)
-    if label:
-        allsymbol_compile = '.*?'
-    else:
-        allsymbol_compile = '.+?'
-
-    if patternstr == '-':
-        return None
-
-    if label:
-        pattern_str_list = [re.sub('\*', allsymbol, x) for x in patternstr.split(' ') if x != '']
-        pattern_compile = [re.escape(x).replace(allsymbol_escape, allsymbol_compile) for x in pattern_str_list]
-
-    else:
-        pattern_str_list = [x.strip() for x in patternstr.split(' ') if x != '']
-        pattern_str_list_2 = []
-        for item in pattern_str_list:
-            morphemes_rule = item.split('+')
-            temporary_morpheme_rules = []
-            for morpheme_rule in morphemes_rule:
-                if len(morpheme_rule.split('/')) == 1:
-                    if morpheme_rule in all_pos_key:
-                        temporary_morpheme_rules.append(all_pos_key[morpheme_rule])
-                    elif '*' in morpheme_rule:
-                        temporary_morpheme_rules.append(get_all_pos_list(morpheme_rule, all_pos_key, pos_list))
-                    elif morpheme_rule in pos_list:
-                        temporary_morpheme_rules.append(['{}/{}'.format(allsymbol, morpheme_rule)])
-                    else:
-                        temporary_morpheme_rules.append(['{}/{}'.format(morpheme_rule, allsymbol)])
-                else:
-                    temporary_morpheme_rules.append([morpheme_rule])
-            temporary_morpheme_rules_combination = ['+'.join(x) for x in list(product(*temporary_morpheme_rules))]
-            pattern_str_list_2.extend(temporary_morpheme_rules_combination)
-
-        pattern_compile = [re.escape(x).replace(allsymbol_escape, allsymbol_compile) for x in pattern_str_list_2]
-
-
-    return pattern_compile
-
-def read_pos_list(filename):
-    pos_lists = [line.strip() for line in open(filename, 'r', encoding='utf-8')]
-
-    return pos_lists
-
-def readHeadRules(filename, pos_list, linear_rule=True):
-    head_rules = []
-
-    with open(filename, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            parent_label, left_label, left_eojul, right_label, right_eojul, left_context, right_context = line.split('\t')
-            head_rules.append(
-                (
-                strToPattern(parent_label.strip(), pos_list, label=True),
-                strToPattern(left_label.strip(), pos_list, label=True),
-                strToPattern(left_eojul.strip(), pos_list, label=False),
-                strToPattern(right_label.strip(), pos_list, label=True),
-                strToPattern(right_eojul.strip(), pos_list, label=False),
-                strToPattern(left_context.strip(), pos_list, label=False),
-                strToPattern(right_context.strip(), pos_list, label=False),
-                linear_rule
-                )
-            )
-    #print(head_rules)
-    return tuple(head_rules)
+import re, os, sys, argparse, time
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-root_dir', type=str, required=True)
     parser.add_argument('-file_name', type=str, default="")
     parser.add_argument('-save_file', type=str, default="result")
-    parser.add_argument('-non_rigid_head', action='store_true')
-
-    parser.add_argument('-pos_list', type=str, default="./Rules/pos_list.txt")
     parser.add_argument('-head_initial', type=str, default="./Rules/linear_rules.txt")
-    parser.add_argument('-head_initial_symbol', type=str, default="./Rules/symbol_rules.txt")
+    parser.add_argument('-head_final', type=int, default=1)
 
     opt = parser.parse_args()
-    rigid_head = not opt.non_rigid_head
-    if not rigid_head:
-        print("Coming Soon..")
-        exit()
-        
-    if rigid_head:
-        save_path = "{}-{}.txt".format(opt.save_file, "rigid_head")
+    head_final = bool(opt.head_final)
+
+    if head_final:
+        save_path = "{}-{}.txt".format(opt.save_file, "head_final")
+        error_path = "{}-{}.error".format(opt.save_file, "head_final")
     else:
-        save_path = "{}-{}.txt".format(opt.save_file, "non_rigid_head")
+        save_path = "{}-{}.txt".format(opt.save_file, "non_head_final")
+        error_path = "{}-{}.error".format(opt.save_file, "non_head_final")
 
     error_count = 0
-    pos_list = read_pos_list(opt.pos_list)
-    print("Loading POS LIST : {}".format(len(pos_list)))
-    head_rules = readHeadRules(opt.head_initial, pos_list, linear_rule=True) + readHeadRules(opt.head_initial_symbol, pos_list, linear_rule=False)
-    print("FIND HEAD RULES : {}".format(len(head_rules)))
 
     corpus_dir_path = opt.root_dir
     sent_tree_list = []
@@ -145,16 +50,21 @@ def main():
 
                 sent_tree_list.append((sent, tree, f_path))
 
-    print(len(sent_tree_list))
+    print("SENTENCES SIZE: {}".format(len(sent_tree_list)))
 
     log = []
+    log_error = []
 
     start = time.time()
-    cnt = 0
-    for ori_sent, struct, ref in tqdm(sent_tree_list, desc=" - (Converting)", mininterval=2):
-        cnt += 1
-        sent_id = cnt
-        cst = ConstitiuentStructureTree(head_rules)
+    if head_final:
+        cst = ConstitiuentStructureTree(opt.head_initial, symbol_rules=False)
+    else:
+        cst = ConstitiuentStructureTree(opt.head_initial, symbol_rules=True)
+    for sent_id, (ori_sent, struct, ref) in enumerate(sent_tree_list):
+        sys.stdout.write('\r{}/{}'.format(sent_id + 1, len(sent_tree_list)))
+        sys.stdout.flush()
+        cst.reset()
+
         ori_sent, _ = cst.replaceSymbol(ori_sent)
 
         quotation_check = re.match("(Q[0-9]+)", ori_sent)
@@ -165,44 +75,97 @@ def main():
 
         struct, except_result = cst.replaceSymbol(struct)
         if except_result:
+            log_error.append("ERROR:{}".format("형태소 분석 오류"))
+            log_error.append("#SENTID:{}".format(sent_id))
+            log_error.append("#FILE:{}".format(ref))
+            log_error.append("#ORGSENT:{}".format(ori_sent))
+            log_error.append("{}".format(struct))
             error_count += 1
             continue
 
         strToTree, tree_result = cst.fromstring(struct)
         if not tree_result:
+            log_error.append("ERROR:{}".format("트리 구조 오류"))
+            log_error.append("#SENTID:{}".format(sent_id))
+            log_error.append("#FILE:{}".format(ref))
+            log_error.append("#ORGSENT:{}".format(ori_sent))
+            log_error.append("{}". format(struct))
             error_count += 1
             continue
 
         cst.insert(strToTree)
-        cst.find_head(head_free=rigid_head)
+        headers, labels = cst.find_head(head_free=not head_final)
+        if headers is None:
+            log_error.append("ERROR:{}".format("헤드 애러"))
+            log_error.append("#SENTID:{}".format(sent_id))
+            log_error.append("#FILE:{}".format(ref))
+            log_error.append("#ORGSENT:{}".format(ori_sent))
+            log_error.append("{}".format(struct))
+            error_count += 1
+            continue
 
-        headers = cst.get_header()
+        headers = cst.get_header(headers, labels)
+
+        ori_sent, headers, reform_result = cst.reform_ori_sent(ori_sent, headers)
+        if not reform_result:
+            error_count += 1
+            log_error.append("ERROR:{}".format("복원 오류"))
+            log_error.append("#SENTID:{}".format(sent_id))
+            log_error.append("#FILE:{}".format(ref))
+            log_error.append("#ORGSENT:{}".format(ori_sent))
+            log_error.append("{}".format(struct))
+            for node_idx in sorted(headers.keys()):
+                node = headers[node_idx]
+                log_error.append(
+                    '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(node_idx + 1, node[0], node[1], node[2], node[3],
+                                                                    node[4], node[5], node[6], node[7], node[8]))
+            log_error.append("\n")
+            continue
 
         check_crossing = cst.check_crossing(headers)
         if not check_crossing:
+            log_error.append("ERROR:{}".format("크로싱 오류"))
+            log_error.append("#SENTID:{}".format(sent_id))
+            log_error.append("#FILE:{}".format(ref))
+            log_error.append("#ORGSENT:{}".format(ori_sent))
+            log_error.append("{}".format(struct))
+            for node_idx in sorted(headers.keys()):
+                node = headers[node_idx]
+                log_error.append(
+                    '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(node_idx + 1, node[0], node[1], node[2], node[3],
+                                                                    node[4], node[5], node[6], node[7], node[8]))
+            log_error.append("\n")
             error_count += 1
             continue
 
         check_cycle = cst.check_cycle(headers)
         if not check_cycle:
-            error_count += 1
-            continue
-
-        ori_sent, headers, reform_result = cst.reform_ori_sent(ori_sent, headers)
-        if not reform_result:
+            log_error.append("ERROR:{}".format("사이클 오류"))
+            log_error.append("#SENTID:{}".format(sent_id))
+            log_error.append("#FILE:{}".format(ref))
+            log_error.append("#ORGSENT:{}".format(ori_sent))
+            log_error.append("{}".format(struct))
+            for node_idx in sorted(headers.keys()):
+                node = headers[node_idx]
+                log_error.append(
+                    '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(node_idx + 1, node[0], node[1], node[2], node[3],
+                                                                    node[4], node[5], node[6], node[7], node[8]))
+            log_error.append("\n")
             error_count += 1
             continue
 
         log.append("#SENTID:{}".format(sent_id))
         log.append("#FILE:{}".format(ref))
-        log.append("#ORISENT:{}".format(ori_sent))
+        log.append("#ORGSENT:{}".format(ori_sent))
         for node_idx in sorted(headers.keys()):
             node = headers[node_idx]
             log.append('{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(node_idx+1, node[0], node[1], node[2], node[3], node[4], node[5], node[6], node[7], node[8]))
         log.append("\n")
 
     with open(save_path, 'w') as f:
-         f.write('\n'.join(log))
+        f.write('\n'.join(log))
+    with open(error_path, 'w') as f:
+        f.write('\n'.join(log_error))
     print("\nfinish")
     print("error_count : {error_count} elapse : {elapse:3.3f} min".format(error_count=error_count, elapse=(time.time()-start)/60))
 
