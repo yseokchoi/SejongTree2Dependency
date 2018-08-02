@@ -18,7 +18,7 @@
     -file_name(optional): 세종 코퍼스 파일 이름(하나의 세종 코퍼스 파일만 읽고자 할 때)
     -save_file: 의존 구문 구조 저장할 파일 이름
     -head_initial: head-initial 예외 규칙(구분자 : \t)
-    -head_final: head-final일 경우 1 덜 엄격한 head-final일 경우 0
+    -head_final: head-final일 경우 1 덜 엄격한 head-final일 경우 0(default: 1)
 
 
 
