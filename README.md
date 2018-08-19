@@ -2,32 +2,30 @@
 # S2D : SejongTree To Dependency
 세종 구문 분석 말뭉치의 의존 구문 구조로의 변환 도구
 
-## Document : SejongTree2Dep.pdf
+# Document : SejongTree2Dep.pdf
 
 # Requirement
 - python 3.6
 
 # Execution
-> (rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -head_initial ./Rules/linear_rules.txt -head_final 1
+> (rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result  -head_initial ./Rules/linear_rules.txt -head_final 1
+> (non-rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result  -head_initial_file ./Rules/linear_rules.txt -head_final 0
 
-> (non-rigid head): python SejongToDependency.py -root_dir corpus_folder_path -save_file result -head_initial ./Rules/linear_rules.txt -head_final 0
 
-
-    Parameters
+    Paramters
     -root_dir: 세종 코퍼스 폴더 위치
     -file_name(optional): 세종 코퍼스 파일 이름(하나의 세종 코퍼스 파일만 읽고자 할 때)
     -save_file: 의존 구문 구조 저장할 파일 이름
-    -head_initial: head-initial 예외 규칙(구분자 : \t)
-    -head_final: head-final일 경우 1 덜 엄격한 head-final일 경우 0(default: 1)
+    -head_initial_file: head-initial 예외 규칙(구분자 : \t)
+    -head_final: 1 if head-final  0 else (default: 0)
 
 
 
 # Format : CONLL-U
 *예제:* 
-
 엠마누엘 웅가로는 "실내 장식품을 디자인할 때 옷을 만들 때와는 다른 해방감을 느낀다"고 말한다.
 
-- **Rigid Head-final Version**
+**Rigid Head-final Version**
 
     |  ID  |    FORM    |    LEMMA    |  UPOSTAG  |    XPOSTAG    | FEATS |  HEAD  |    DEPREL    | DEPS |     MISC     |
     |:----:|:----------:|:-----------:|:---------:|:-------------:|:-----:|:------:|:------------:|:----:|:------------:|
@@ -48,7 +46,7 @@
     |  15  |  고        |   고        |  ADP      |    JKQ        |   -   |   16   |    VP_CMP    |  -   |      -       |
     |  16  |  말한다.    |   말 하 ㄴ다|  VERB     |   NNG XSV EF SF|   -   |    0   |    ROOT        |  -   |      -       |
 
-- **Non-rigid Head final Version**
+**Non-rigid Head final Version**
 
     |  ID  |    FORM    |    LEMMA    |  UPOSTAG  |    XPOSTAG    | FEATS |  HEAD  |    DEPREL    | DEPS |     MISC     |
     |:----:|:----------:|:-----------:|:---------:|:-------------:|:-----:|:------:|:------------:|:----:|:------------:|
@@ -70,7 +68,28 @@
     |  16  |  말한다.    |   말 하 ㄴ다|  VERB     |   NNG XSV EF SF|   -   |    0   |    ROOT        |  -   |      -       |
 
 
-<hr/>
+
+# CoNLL2Transition : CONLL To Transition
+
+Transition-based 의존 구문 파서를 위한 데이터 변환
 
 
-GPL 2.0 License
+
+# Requirement
+
+- python 3.6
+
+  
+
+# Execution
+
+> (ARC Standard + forward): python MakeTransitionCorpus.py -root_dir ./ -file_name *sejong.conll* -save_file *sejong_ARC_STANDARD.txt* -arc_standard  
+> (ARC Eager + backward): python MakeTransitionCorpus.py -root_dir ./ -file_name *sejong.conll* -save_file *sejong_ARC_EAGER.txt*
+
+```
+Paramters
+root_dir: 세종 코퍼스 폴더 위치
+file_name(optional): 세종 코퍼스 파일 이름(하나의 세종 코퍼스 파일만 읽고자 할때)
+save_file: 변환한 구문 구조를 저장할 파일 이름
+arc_standard: ARC-Standard를 이용한 데이터 변환
+```
