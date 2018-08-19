@@ -1,19 +1,19 @@
-VP*  VNP*  S*	VP_MOD  VNP_MOD	-	VNP	NNB+VCP  정도+VCP  노릇+VCP  지경+VCP  탓+VCP	-	-
-VP*  VNP*  S*	VP_MOD  VNP_MOD	-	VP* 	만/NNB+하  듯/NNB+하  체/NNB+하  뻔/NNB+하  성/NNB+싶	-	-
+VP*  VNP*  S*	VP_MOD  VNP_MOD  S_MOD	-	VNP	NNB+VCP  정도+VCP  노릇+VCP  지경+VCP  탓+VCP	-	-
+VP*  VNP*  S*	VP_MOD  VNP_MOD  S_MOD	-	VP* 	만/NNB+하  듯/NNB+하  체/NNB+하  뻔/NNB+하  성/NNB+싶	-	-
 VP*  VNP*  S*	VP*  S*  VNP*	기/ETN	VNP	때문+VCP  일쑤+VCP  십상+VCP  마련+VCP	-	-
 VP*  VNP*  S*	VP*  S*  VNP*	기/ETN+JX 기/ETN+로/JKB	VP*	하	-	-
-VP*  VNP*  S*	VP*  VNP*	EC	VP*  S*	VX	-	-
-VP*  VNP*  S*	VP*  VNP*	게/EC	VP*  VNP*  S* 	마련+VCP	-	-
-VP*  VNP*  S*	VP*  VNP*	게/EC  도록/EC  으면/EC  면/EC	VP*  VNP*  S* 	되/VV	-	-
-VP*  VNP*  S*	VP*  VNP*	으면/EC  면/EC	VP*  S*	안+되	-	-
-VP*  VNP*  S*	VP*  VNP*	어/EC  아/EC	VP*  S*	보/VV 오/VV	-	-
-NP_SBJ	VP_MOD	-	NP_SBJ	수/NNB  리/NNB  바/NNB  탓/NNB  적/NNB	-	있  없
+VP*  VNP*  S*	VP*  S*  VNP*	EC	VP*  S*	VX	-	-
+VP*  VNP*  S*	VP*  S*  VNP*	게/EC	VP*  VNP*  S* 	마련+VCP	-	-
+VP*  VNP*  S*	VP*  S*  VNP*	게/EC  도록/EC  으면/EC  면/EC	VP*  VNP*  S* 	되/VV	-	-
+VP*  VNP*  S*	VP*  S*  VNP*	으면/EC  면/EC	VP*  S*	안+되	-	-
+VP*  VNP*  S*	VP*  S*  VNP*	어/EC  아/EC	VP*  S*	보/VV 오/VV	-	-
+NP_SBJ	VP_MOD  VNP_MOD  S_MOD	-	NP_SBJ	수/NNB  리/NNB  바/NNB  탓/NNB  적/NNB	-	있  없
 VP*  VNP*  S*	NP_SBJ	수/NNB  리/NNB  바/NNB  탓/NNB  적/NNB  수/NNB+가/JKS  리/NNB+가/JKS  바/NNB+가/JKS  적/NNB+이/JKS	VP*	있  없	ETM	-
-NP*	VP_MOD	-	NP	것/NNB  거/NNB	-	같  뿐+VCP
+NP*	VP_MOD  VNP_MOD  S_MOD	-	NP	것/NNB  거/NNB	-	같  뿐+VCP
 VP*  VNP*  S*	NP	것/NNB  거/NNB	VP*  VNP*	같  뿐+VCP	ETM	-
-NP*	VP_MOD	-	NP*	뿐/NNB	-	아니/VCN
+NP*	VP_MOD  VNP_MOD  S_MOD	-	NP*	뿐/NNB	-	아니/VCN
 VP*  VNP*  S*	NP*	뿐/NNB	VP*	아니/VCN	ETM	-
-NP*	VP_MOD	-	NP*	듯/NNB	-	하
+NP*	VP_MOD  VNP_MOD  S_MOD	-	NP*	듯/NNB	-	하
 VP*  VNP*  S*	NP*	듯/NNB	VP*	하	ETM	-
-VP*  VNP*  S*	VP*  VNP*	으면/EC  면/EC	AP	안/MAG	-	되
+VP*  VNP*  S*	VP*  VNP*  S*	으면/EC  면/EC	AP	안/MAG	-	되
 VP*  VNP*  S*	AP	안/MAG	VP*	되	으면/EC  면/EC	-
