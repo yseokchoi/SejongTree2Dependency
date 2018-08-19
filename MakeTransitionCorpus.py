@@ -179,14 +179,14 @@ def main():
     corpus_dir_path = opt.root_dir
     datas = []
     if opt.file_name != "":
-        f_text = open(os.path.join(corpus_dir_path, opt.file_name)).read().strip()
+        f_text = open(os.path.join(corpus_dir_path, opt.file_name), encoding='utf-8').read().strip()
         datas.extend(f_text.split("\n\n\n"))
 
     else:
         for f_path in sorted(os.listdir(corpus_dir_path)):
             if f_path.endswith("~"):
                 continue
-            f_text = open(os.path.join(corpus_dir_path, opt.file_name)).read().strip()
+            f_text = open(os.path.join(corpus_dir_path, opt.file_name), encoding='utf-8').read().strip()
             datas.extend(f_text.split("\n\n\n"))
 
     conll_datas = []
@@ -226,7 +226,7 @@ def main():
         log.extend(arc_data)
         log.append("\n")
 
-    with open(save_path, 'w') as f:
+    with open(save_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(log))
     print("\nfinish elapse : {elapse:3.3f} min".format(elapse=(time.time() - start) / 60))
 

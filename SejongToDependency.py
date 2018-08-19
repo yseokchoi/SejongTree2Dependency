@@ -165,10 +165,10 @@ def main():
             log.append('{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(node_idx, node[0], node[1], node[2], node[3], node[4], node[5], node[6], node[7], node[8]))
         log.append("\n")
 
-    with open(save_path, 'w') as f:
+    with open(save_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(log))
     if len(log_error) > 0:
-        with open(error_path, 'w') as f:
+        with open(error_path, 'w', encoding='utf-8') as f:
             f.write('\n'.join(log_error))
     print("\nfinish")
     print("error_count : {error_count} elapse : {elapse:3.3f} min".format(error_count=error_count, elapse=(time.time()-start)/60))
