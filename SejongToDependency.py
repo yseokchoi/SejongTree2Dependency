@@ -24,7 +24,7 @@ def main():
     corpus_dir_path = opt.root_dir
     sent_tree_list = []
     if opt.file_name != "":
-        f_text = "".join([line for line in open(os.path.join(corpus_dir_path, opt.file_name))])
+        f_text = "".join([line for line in open(os.path.join(corpus_dir_path, opt.file_name), encoding='utf-8')])
         text = f_text.split("<body>")[1].split("</body>")[0].strip()
 
         sent_tree_s = text.split("\n\n")
@@ -39,7 +39,7 @@ def main():
             if f_path.endswith("~"):
                 continue
 
-            f_text = "".join([line for line in open(os.path.join(corpus_dir_path, f_path))])
+            f_text = "".join([line for line in open(os.path.join(corpus_dir_path, f_path), encoding='utf-8')])
             text = f_text.split("<body>")[1].split("</body>")[0].strip()
 
             sent_tree_s = text.split("\n\n")
