@@ -6,18 +6,18 @@ def main():
     parser.add_argument('-root_dir', type=str, required=True)
     parser.add_argument('-file_name', type=str, default="")
     parser.add_argument('-save_file', type=str, default="result")
-    parser.add_argument('-head_initial', type=str, default="./Rules/linear_rules.txt")
-    parser.add_argument('-head_final', type=int, default=1)
+    parser.add_argument('-head_initial_file', type=str, default="./Rules/linear_rules.txt")
+    parser.add_argument('-head_final', type=int, default=0)
 
     opt = parser.parse_args()
     head_final = bool(opt.head_final)
 
     if head_final:
-        save_path = "{}-{}.txt".format(opt.save_file, "head_final")
-        error_path = "{}-{}.error".format(opt.save_file, "head_final")
+        save_path = "{}-{}".format("head_final", opt.save_file)
+        error_path = "{}-{}_error".format("head_final", opt.save_file)
     else:
-        save_path = "{}-{}.txt".format(opt.save_file, "non_head_final")
-        error_path = "{}-{}.error".format(opt.save_file, "non_head_final")
+        save_path = "{}".format(opt.save_file, )
+        error_path = "{}_error".format(opt.save_file, )
 
     error_count = 0
 
@@ -57,11 +57,12 @@ def main():
 
     start = time.time()
     if head_final:
-        cst = ConstitiuentStructureTree(opt.head_initial, symbol_rules=False)
+        cst = ConstitiuentStructureTree(opt.head_initial_file, symbol_rules=False, head_final=head_final)
     else:
-        cst = ConstitiuentStructureTree(opt.head_initial, symbol_rules=True)
+        cst = ConstitiuentStructureTree(opt.head_initial_file, symbol_rules=True, head_final=head_final)
     for sent_id, (ori_sent, struct, ref) in enumerate(sent_tree_list):
-        sys.stdout.write('\r{}/{}'.format(sent_id + 1, len(sent_tree_list)))
+        sent_id = sent_id + 1
+        sys.stdout.write('\r{}/{}'.format(sent_id, len(sent_tree_list)))
         sys.stdout.flush()
         cst.reset()
 
@@ -94,7 +95,7 @@ def main():
             continue
 
         cst.insert(strToTree)
-        headers, labels = cst.find_head(head_free=not head_final)
+        headers, labels = cst.find_head()
         if headers is None:
             log_error.append("ERROR:{}".format("헤드 애러"))
             log_error.append("#SENTID:{}".format(sent_id))
@@ -154,18 +155,21 @@ def main():
             error_count += 1
             continue
 
+        headers = cst.assignDepRelation(headers)
+
         log.append("#SENTID:{}".format(sent_id))
         log.append("#FILE:{}".format(ref))
         log.append("#ORGSENT:{}".format(ori_sent))
         for node_idx in sorted(headers.keys()):
             node = headers[node_idx]
-            log.append('{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(node_idx+1, node[0], node[1], node[2], node[3], node[4], node[5], node[6], node[7], node[8]))
+            log.append('{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format(node_idx, node[0], node[1], node[2], node[3], node[4], node[5], node[6], node[7], node[8]))
         log.append("\n")
 
     with open(save_path, 'w') as f:
         f.write('\n'.join(log))
-    with open(error_path, 'w') as f:
-        f.write('\n'.join(log_error))
+    if len(log_error) > 0:
+        with open(error_path, 'w') as f:
+            f.write('\n'.join(log_error))
     print("\nfinish")
     print("error_count : {error_count} elapse : {elapse:3.3f} min".format(error_count=error_count, elapse=(time.time()-start)/60))
 

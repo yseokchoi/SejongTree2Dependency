@@ -1,4 +1,5 @@
 from UPosTagMap import *
+from AssignUDepRel import *
 from itertools import product
 from collections import OrderedDict
 import re, math
@@ -18,7 +19,7 @@ class Node(object):
         self.left_child = self.right_child = None
 
 class ConstitiuentStructureTree(object):
-    def __init__(self, linear_rules_file, symbol_rules=True):
+    def __init__(self, linear_rules_file, symbol_rules=True, head_final=True):
         self.pos_list = [
             "NNG",
             "NNP",
@@ -71,9 +72,15 @@ class ConstitiuentStructureTree(object):
         self.total_node = 0
         self.upostag_map = UPosTagMap()
         self.keymap = {
+            "ᄀ":"ㄱ",
             "ᆫ":"ㄴ",
+            "ᄃ":"ㄷ",
             "ᆯ":"ㄹ",
+            "ᄆ":"ㅁ",
             "ᄇ":"ㅂ",
+            "ᆼ":"ㅇ",
+            "ᄎ":"ㅊ",
+            "ᄒ":"ㅎ",
             "，":",",
             "`":"\'",
             "\'":"\'",
@@ -175,6 +182,8 @@ class ConstitiuentStructureTree(object):
 
         self.NUMJONG = len(self.JONGSUNG)
         self.string_types = (type(""),)
+        self.head_final = head_final
+        self.depRel_map = UDepRelMap(int(self.head_final))
 
     def reset(self):
         if self.length > 0:
@@ -307,6 +316,18 @@ class ConstitiuentStructureTree(object):
                 result = result.replace(key2, key1)
         return result
 
+    def threeLinearCheck(self, head_list, linear_rules):
+        result_head = []
+        for a, b, rule, s_rule, label, except_PRN in head_list:
+            if (a-1, a, b) in linear_rules:
+                if linear_rules[(a-1, a, b)][0] and linear_rules[(a-1, a, b)][1]:
+                    result_head.append((a, b, rule, s_rule, label[0], except_PRN))
+                else:
+                    result_head.append((a, b, False, False, label[1], False))
+            else:
+                result_head.append((a, b, rule, s_rule, label[0], except_PRN))
+        return result_head
+
     def rearrangeLinear(self, head_list):
         result_head = []
         for a, b, rule, s_rule, label, except_PRN in head_list:
@@ -348,7 +369,7 @@ class ConstitiuentStructureTree(object):
                 result_head.append((a, b, rule, s_rule, label, except_PRN))
         return result_head
 
-    def moveHead(self, head_list, head_free):
+    def moveHead(self, head_list):
         linear_rules = {b:a for a, b, rule, _, _, _ in head_list if rule}
         loc_PRN = {loc:(b, a) for loc, (a, b, _, _, _, except_PRN) in enumerate(head_list) if except_PRN}
         result_head = []
@@ -368,9 +389,9 @@ class ConstitiuentStructureTree(object):
                 result_head.append((a, target_b, rule, s_rule, label, except_PRN))
 
             else:
-                if not s_rule and head_free:
+                if not s_rule and not self.head_final:
                     result_head.append((a, b, rule, s_rule, "_", except_PRN))
-                elif head_free:
+                elif not self.head_final:
                     target_a = a
                     while target_a in linear_rules and rule:
                         target_a = linear_rules[target_a]
@@ -481,15 +502,16 @@ class ConstitiuentStructureTree(object):
 
         return -1
 
-    def find_head(self, head_free=True):
+    def find_head(self):
         result_head = []
+        three_linear_rules = {}
 
-        def _find_head(node, head_list):
+        def _find_head(node, head_list, linear_rules):
             if node is None:
                 pass
             else:
-                _find_head(node.left_child, head_list)
-                _find_head(node.right_child, head_list)
+                _find_head(node.left_child, head_list, linear_rules)
+                _find_head(node.right_child, head_list, linear_rules)
                 if node.index == -1:
                     right_most_node, _ = self.find(node.left_child, method='rmn')
                     left_most_node, ldepth = self.find(node.right_child, method='lmn')
@@ -529,30 +551,39 @@ class ConstitiuentStructureTree(object):
                             self.checkPattern(left_context_rule, left_context_node, True) and \
                             self.checkPattern(right_context_rule, right_context_node, False):
 
+                            if left_context_rule is not None and isinstance(left_context_node, Node) and self.checkPattern(left_context_rule, left_context_node, True):
+                                linear_rules.setdefault((left_context_node.index, right_most_node.index, left_most_node.index), [False, False])
+                                linear_rules[(left_context_node.index, right_most_node.index, left_most_node.index)][0] = True
+                                if left_most_node.index + 1 == self.length: #180814 마지막 노드가 문장 끝일 경우
+                                    linear_rules[(left_context_node.index, right_most_node.index, left_most_node.index)][1] = True
+                            elif right_context_rule is not None and isinstance(right_context_node, Node) and self.checkPattern(right_context_rule, right_context_node, False):
+                                linear_rules.setdefault((right_most_node.index, left_most_node.index, right_context_node.index), [False, False])
+                                linear_rules[(right_most_node.index, left_most_node.index, right_context_node.index)][1] = True
+
                             if linear_rule:
-                                head_list.append((right_most_node.index, right_node.index, True, False, node.right_child.label, except_PRN))
+                                head_list.append((right_most_node.index, right_node.index, True, False, (node.right_child.label, node.left_child.label), except_PRN))
                                 linear_rule_check = True
                                 break
                             elif except_PRN:
                                 head_list.append((right_most_node.index, right_node.index, False, False,
-                                                  node.right_child.label, except_PRN))
+                                                  (node.right_child.label, node.left_child.label), except_PRN))
                                 linear_rule_check = True
                                 break
                             elif ldepth == 0:
-                                head_list.append((right_most_node.index, right_node.index, True, True, node.right_child.label, except_PRN))
+                                head_list.append((right_most_node.index, right_node.index, True, True, (node.right_child.label, node.left_child.label), except_PRN))
                                 linear_rule_check = True
                                 break
                     except_PRN = False
 
                     if not linear_rule_check:
-                        head_list.append((right_most_node.index, right_node.index, False, False, node.left_child.label, except_PRN))
+                        head_list.append((right_most_node.index, right_node.index, False, False, (node.left_child.label, node.right_child.label), except_PRN))
 
-        def _find_head_final(node, head_list):
+        def _find_head_final(node, head_list, linear_rules):
             if node is None:
                 pass
             else:
-                _find_head_final(node.left_child, head_list)
-                _find_head_final(node.right_child, head_list)
+                _find_head_final(node.left_child, head_list, linear_rules)
+                _find_head_final(node.right_child, head_list, linear_rules)
                 if node.index == -1:
                     right_most_node, _ = self.find(node.left_child, method='rmn')
                     left_most_node, _ = self.find(node.right_child, method='lmn')
@@ -579,27 +610,39 @@ class ConstitiuentStructureTree(object):
                                 self.checkPattern(left_context_rule, left_context_node, True) and \
                                 self.checkPattern(right_context_rule, right_context_node, False) and \
                                 linear_rule:
-                            head_list.append((right_most_node.index, right_node.index, True, False, node.left_child.label, False))
+
+                            if left_context_rule is not None and isinstance(left_context_node, Node) and self.checkPattern(left_context_rule, left_context_node, True):
+                                linear_rules.setdefault((left_context_node.index, right_most_node.index, left_most_node.index), [False, False])
+                                linear_rules[(left_context_node.index, right_most_node.index, left_most_node.index)][0] = True
+                                if left_most_node.index + 1 == self.length: #180814 마지막 노드가 문장 끝일 경우
+                                    linear_rules[(left_context_node.index, right_most_node.index, left_most_node.index)][1] = True
+                            elif right_context_rule is not None and isinstance(right_context_node, Node) and self.checkPattern(right_context_rule, right_context_node, False):
+                                linear_rules.setdefault((right_most_node.index, left_most_node.index, right_context_node.index), [False, False])
+                                linear_rules[(right_most_node.index, left_most_node.index, right_context_node.index)][1] = True
+
+                            head_list.append((right_most_node.index, right_node.index, True, False, (node.left_child.label, node.left_child.label), False))
                             linear_rule_check = True
                             break
 
                     if not linear_rule_check:
-                        head_list.append((right_most_node.index, right_node.index, False, False, node.left_child.label, False))
+                        head_list.append((right_most_node.index, right_node.index, False, False, (node.left_child.label, node.left_child.label), False))
 
-        if head_free:
-            _find_head(self.root, result_head)
+        if not self.head_final:
+            _find_head(self.root, result_head, three_linear_rules)
+            result_head = self.threeLinearCheck(result_head, three_linear_rules)
             result_head = self.rearrangeLinear(result_head)
             result_head = self.PRN_rules(result_head)
             result_head = self.moveSymbolHead(result_head)
-            result_head = self.moveHead(result_head, head_free)
+            result_head = self.moveHead(result_head)
             result_head = self.doubleHead(result_head)
             result_head, result_label = self.getHead(result_head)
             if len(result_head) != self.length-1:
                 return None, None
         else:
-            _find_head_final(self.root, result_head)
+            _find_head_final(self.root, result_head, three_linear_rules)
+            result_head = self.threeLinearCheck(result_head, three_linear_rules)
             result_head = self.rearrangeLinear(result_head)
-            result_head = self.moveHead(result_head, head_free)
+            result_head = self.moveHead(result_head)
             result_label = {a: label for a, _, _, _, label, _ in result_head}
             result_head = {a:b for a, b, _, _, _, _ in result_head}
 
@@ -617,7 +660,7 @@ class ConstitiuentStructureTree(object):
             lemmas.append(lemma)
         poses = [x[1] for x in result]
 
-        return ' '.join(lemmas), ' '.join(poses)
+        return ' '.join(lemmas), '+'.join(poses)
 
     def get_header(self, headers_info=None, labels_info=None):
         result = dict()
@@ -630,10 +673,11 @@ class ConstitiuentStructureTree(object):
                 _post_order_traversal(node.right_child, result_, headers_info, labels_info)
                 if node.index != -1:
                     lemma, xpostag = self.get_lemma_and_xpostag(node.token)
+                    input_xpostag = " ".join(xpostag.split("+"))
                     if node.index not in headers_info:
-                        result_.setdefault(node.index, [node.token, lemma, " ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", 0, "ROOT", "_", "_"])
+                        result_.setdefault(node.index, [node.token, lemma, "+".join(self.upostag_map.GetUPOS(input_xpostag, lemma)), xpostag, "_", 0, "ROOT", "_", "_"])
                     else:
-                        result_.setdefault(node.index, [node.token, lemma," ".join(self.upostag_map.GetUPOS(xpostag)), xpostag, "_", headers_info[node.index]+1, labels_info[node.index], "_", "_"])
+                        result_.setdefault(node.index, [node.token, lemma,"+".join(self.upostag_map.GetUPOS(input_xpostag, lemma)), xpostag, "_", headers_info[node.index]+1, labels_info[node.index], "_", "_"])
         _post_order_traversal(self.root, result, headers_info, labels_info)
         return result
 
@@ -760,12 +804,40 @@ class ConstitiuentStructureTree(object):
                 compose_syllable = chr(compose_syllable)
                 results.append(compose_syllable)
                 results.extend([x for x in post_morpheme])
-            elif len(results) > 0 and "으" not in key_morphemes and results[-1] == "으" and morpheme == "아":
+            elif len(results) > 0 and "으" not in key_morphemes and results[-1] == "으" and morpheme == "아":  # 으 + 아  = 아(except "아" + "")
                 del results[-1]
                 results.append("아")
-            elif len(results) > 0 and results[-1] == "하" and morpheme == "았":
+            elif len(results) > 0 and results[-1] == "하" and morpheme == "았":  # 하 + 았 = 했
                 del results[-1]
                 results.append("했")
+            elif len(results) > 0 and results[-1] == "오" and morpheme == "았":  # 오 + 았 = 왔
+                del results[-1]
+                results.append("왔")
+            elif len(results) > 0 and results[-1] == "가" and morpheme == "았":  # 가 + 았 = 갔
+                del results[-1]
+                results.append("갔")
+            elif len(results) > 0 and results[-1] == "하" and morpheme == "아야":  # 하 + 아야 = 해야
+                del results[-1]
+                results.extend(["해", "야"])
+            elif len(results) > 0 and results[-1] == "하" and morpheme == "아요":  # 하 + 아요 = 해요
+                del results[-1]
+                results.extend(["해", ""])
+            elif len(results) > 0 and results[-1] == "시" and morpheme == "어요":  # 시 + 어요 = 세요
+                del results[-1]
+                results.extend(["세", "요"])
+            elif len(results) > 0 and results[-1] == "되" and morpheme == "어도":  # 되 + 어도 = 돼도
+                del results[-1]
+                results.extend(["돼", "도"])
+            elif len(results) > 0 and "".join(results[-2:]) == "그러" and morpheme == "어도":  # 그러 + 어도 = 그래도
+                del results[-1]
+                del results[-1]
+                results.extend(["그", "래", "도"])
+            elif len(results) > 0 and results[-1] == "서" and morpheme == "어서":  # 서 + 어서 = 서서
+                del results[-1]
+                results.extend(["서", "서"])
+            elif len(results) > 0 and results[-1] == "말" and morpheme == "아":  # 말 + 아 = 마
+                del results[-1]
+                results.append("마")
             else:
                 results.extend([x for x in morpheme])
 
@@ -826,7 +898,6 @@ class ConstitiuentStructureTree(object):
                     results[key][0] = check_lists[pre_key] + 1
                     check_lists[key] = check_lists[pre_key] + 1
 
-        cnt_eojul_idx = 0
 
         # reversed_check_lists (eojul_idx, [node_idx])
         reversed_check_lists = {}
@@ -1017,3 +1088,13 @@ class ConstitiuentStructureTree(object):
                     break
 
         return ori_sent, results, result_reform
+
+    def assignDepRelation(self, headers):
+        headinfo_lists = []
+        for node_idx in sorted(headers.keys()):
+            headinfo_lists.append([node_idx+1] + headers[node_idx])
+        results = self.depRel_map.assign_sent_urel(headinfo_lists)
+        results_dict = {}
+        for item in results:
+            results_dict.setdefault(item[0], item[1:])
+        return results_dict
