@@ -1,6 +1,12 @@
 
 # S2D : SejongTree To Dependency
-세종 구문 분석 말뭉치의 의존 구문 구조로의 변환 도구
+세종 구문 분석 말뭉치의 의존 구문 구조로의 변환 도구(ver. 0.9)
+- **Universal Dependency Relation이 매번 업데이트 될 예정입니다.(180820)**
+- 2018.09.08 기준으로 아래의 사이트에서 업데이트할 예정입니다.
+  - https://github.com/cnunlplab/SejongTree2Dependency
+
+# Update
+- 180820 ver. 0.9 업로드
 
 # Document : SejongTree2Dep.pdf
 
@@ -27,45 +33,45 @@
 
 **Rigid Head-final Version**
 
-    |  ID  |    FORM    |    LEMMA    |  UPOSTAG  |    XPOSTAG    | FEATS |  HEAD  |    DEPREL    | DEPS |     MISC     |
-    |:----:|:----------:|:-----------:|:---------:|:-------------:|:-----:|:------:|:------------:|:----:|:------------:|
-    |   1  |  엠마누엘   |   엠마누엘   |  PROPN    |    NNP        |   -   |    2   |    NP        |  -   |      -       |
-    |   2  |  웅가로는   |   웅가로 는  |  PROPN    |    NNP JX     |   -   |   16   |    NP_SBJ    |  -   |      -       |
-    |   3  |   "        |    "        |  PUNCT    |    SS         |   -   |   14   |    L         |  -   |SpaceAfter=No |
-    |   4  |  실내      |   실내       |  NOUN     |    NNG        |   -   |    5   |    NP        |  -   |      -       |
-    |   5  |  장식품을   |   장식품을   |  NOUN     |    NNG JKO    |   -   |    6   |    NP_OBJ    |  -   |      -       |
-    |   6  |  디자인할   | 디자인 하 ㄹ |  VERB     |    NNG XSV ETM|   -   |    7   |    VP_MOD    |  -   |      -       |
-    |   7  |  때        |   때        |  NOUN     |    NNG        |   -   |   13   |    NP_AJT    |  -   |      -       |
-    |   8  |  옷을      |    옷 을     |  NOUN     |    NNG JKO    |   -   |    9   |    NP_OBJ    |  -   |      -       |
-    |   9  |  만들      |   만들 ㄹ    |  VERB     |    VV ETM     |   -   |   10   |    VP_MOD    |  -   |      -       |
-    |  10  |  때와는     |   때 와 는   |  NOUN    |    NNG JKB JX |   -   |   11    |    NP_SBJ   |  -   |      -       |
-    |  11  |  다른      |   다르 ㄴ    |  ADJ      |    VA ETM     |   -   |   12   |    VP_MOD    |  -   |      -       |
-    |  12  |  해방감을   |   해방감 을  |  NOUN     |    NNG JKO    |   -   |   13   |    NP_OBJ    |  -   |      -       |
-    |  13  |  느낀다     |   느끼 ㄴ다  |  VERB     |    VV EC      |   -   |   14   |    VP        |  -   |SpaceAfter=No |
-    |  14  |   "        |    "        |  PUNCT    |    SS         |   -   |   15   |    VP        |  -   |SpaceAfter=No |
-    |  15  |  고        |   고        |  ADP      |    JKQ        |   -   |   16   |    VP_CMP    |  -   |      -       |
-    |  16  |  말한다.    |   말 하 ㄴ다|  VERB     |   NNG XSV EF SF|   -   |    0   |    ROOT        |  -   |      -       |
+|  ID  |   FORM   |    LEMMA     | UPOSTAG |    XPOSTAG    | FEATS | HEAD | DEPREL | DEPS |     MISC      |
+| :--: | :------: | :----------: | :-----: | :-----------: | :---: | :--: | :----: | :--: | :-----------: |
+|  1   | 엠마누엘 |   엠마누엘   |  PROPN  |      NNP      |   _   |  2   |  nmod  |  _   |       _       |
+|  2   | 웅가로는 |  웅가로 는   |  PROPN  |    NNP+JX     |   _   |  16  | nsubj  |  _   |       _       |
+|  3   |    "     |      "       |  PUNCT  |      SS       |   _   |  14  | punct  |  _   | SpaceAfter=No |
+|  4   |   실내   |     실내     |  NOUN   |      NNG      |   _   |  5   |  nmod  |  _   |       _       |
+|  5   | 장식품을 |  장식품 을   |  NOUN   |    NNG+JKO    |   _   |  6   |  obj   |  _   |       _       |
+|  6   | 디자인할 | 디자인 하 ㄹ |  VERB   |    VV+ETM     |   _   |  7   |  acl   |  _   |       _       |
+|  7   |    때    |      때      |  NOUN   |      NNG      |   _   |  13  |  obl   |  _   |       _       |
+|  8   |   옷을   |    옷 을     |  NOUN   |    NNG+JKO    |   _   |  9   |  obj   |  _   |       _       |
+|  9   |   만들   |   만들 ㄹ    |  VERB   |    VV+ETM     |   _   |  10  |  acl   |  _   |       _       |
+|  10  |  때와는  |   때 와 는   |  NOUN   |  NNG+JKB+JX   |   _   |  11  | nsubj  |  _   |       _       |
+|  11  |   다른   |   다르 ㄴ    |   ADJ   |    VA+ETM     |   _   |  12  |  acl   |  _   |       _       |
+|  12  | 해방감을 |  해방감 을   |  NOUN   |    NNG+JKO    |   _   |  13  |  obj   |  _   |       _       |
+|  13  |  느낀다  |  느낀 ㄴ다   |  VERB   |     VV+EC     |   _   |  14  | advcl  |  _   | SpaceAfter=No |
+|  14  |    "     |      "       |  PUNCT  |      SS       |   _   |  15  | punct  |  _   | SpaceAfter=No |
+|  15  |    고    |      고      |   ADP   |      JKQ      |   _   |  16  | ccomp  |  _   |       _       |
+|  16  | 말한다.  | 말 하 ㄴ다 . |  VERB   | NNG+XSV+EF+SF |   _   |  0   |  root  |  _   |       _       |
 
 **Non-rigid Head final Version**
 
-    |  ID  |    FORM    |    LEMMA    |  UPOSTAG  |    XPOSTAG    | FEATS |  HEAD  |    DEPREL    | DEPS |     MISC     |
-    |:----:|:----------:|:-----------:|:---------:|:-------------:|:-----:|:------:|:------------:|:----:|:------------:|
-    |   1  |  엠마누엘   |   엠마누엘   |  PROPN    |    NNP        |   -   |    2   |    NP        |  -   |      -       |
-    |   2  |  웅가로는   |   웅가로 는  |  PROPN    |    NNP JX     |   -   |   16   |    NP_SBJ    |  -   |      -       |
-    |   3  |   "        |    "        |  PUNCT    |    SS         |   -   |   13   |    L         |  -   |SpaceAfter=No |
-    |   4  |  실내      |   실내       |  NOUN     |    NNG        |   -   |    5   |    NP        |  -   |      -       |
-    |   5  |  장식품을   |   장식품을   |  NOUN     |    NNG JKO    |   -   |    6   |    NP_OBJ    |  -   |      -       |
-    |   6  |  디자인할   | 디자인 하 ㄹ |  VERB     |    NNG XSV ETM|   -   |    7   |    VP_MOD    |  -   |      -       |
-    |   7  |  때        |   때        |  NOUN     |    NNG        |   -   |   13   |    NP_AJT    |  -   |      -       |
-    |   8  |  옷을      |    옷 을     |  NOUN     |    NNG JKO    |   -   |    9   |    NP_OBJ    |  -   |      -       |
-    |   9  |  만들      |   만들 ㄹ    |  VERB     |    VV ETM     |   -   |   10   |    VP_MOD    |  -   |      -       |
-    |  10  |  때와는     |   때 와 는   |  NOUN    |    NNG JKB JX |   -   |   11    |    NP_SBJ   |  -   |      -       |
-    |  11  |  다른      |   다르 ㄴ    |  ADJ      |    VA ETM     |   -   |   12   |    VP_MOD    |  -   |      -       |
-    |  12  |  해방감을   |   해방감 을  |  NOUN     |    NNG JKO    |   -   |   13   |    NP_OBJ    |  -   |      -       |
-    |  13  |  느낀다     |   느끼 ㄴ다  |  VERB     |    VV EC      |   -   |   16   |    VP_CMP    |  -   |SpaceAfter=No |
-    |  14  |   "        |    "        |  PUNCT    |    SS         |   -   |   13   |    R         |  -   |SpaceAfter=No |
-    |  15  |  고        |   고        |  ADP      |    JKQ        |   -   |   13   |    X_CMP     |  -   |      -       |
-    |  16  |  말한다.    |   말 하 ㄴ다|  VERB     |   NNG XSV EF SF|   -   |    0   |    ROOT        |  -   |      -       |
+|  ID  |   FORM   |    LEMMA     | UPOSTAG |    XPOSTAG    | FEATS | HEAD | DEPREL | DEPS |     MISC      |
+| :--: | :------: | :----------: | :-----: | :-----------: | :---: | :--: | :----: | :--: | :-----------: |
+|  1   | 엠마누엘 |   엠마누엘   |  PROPN  |      NNP      |   _   |  2   |  nmod  |  _   |       _       |
+|  2   | 웅가로는 |  웅가로 는   |  PROPN  |    NNP+JX     |   _   |  16  | nsubj  |  _   |       _       |
+|  3   |    "     |      "       |  PUNCT  |      SS       |   _   |  13  | punct  |  _   | SpaceAfter=No |
+|  4   |   실내   |     실내     |  NOUN   |      NNG      |   _   |  5   |  nmod  |  _   |       _       |
+|  5   | 장식품을 |  장식품 을   |  NOUN   |    NNG+JKO    |   _   |  6   |  obj   |  _   |       _       |
+|  6   | 디자인할 | 디자인 하 ㄹ |  VERB   |    VV+ETM     |   _   |  7   |  acl   |  _   |       _       |
+|  7   |    때    |      때      |  NOUN   |      NNG      |   _   |  13  |  obl   |  _   |       _       |
+|  8   |   옷을   |    옷 을     |  NOUN   |    NNG+JKO    |   _   |  9   |  obj   |  _   |       _       |
+|  9   |   만들   |   만들 ㄹ    |  VERB   |    VV+ETM     |   _   |  10  |  acl   |  _   |       _       |
+|  10  |  때와는  |   때 와 는   |  NOUN   |  NNG+JKB+JX   |   _   |  11  | nsubj  |  _   |       _       |
+|  11  |   다른   |   다르 ㄴ    |   ADJ   |    VA+ETM     |   _   |  12  |  acl   |  _   |       _       |
+|  12  | 해방감을 |  해방감 을   |  NOUN   |    NNG+JKO    |   _   |  13  |  obj   |  _   |       _       |
+|  13  |  느낀다  |  느낀 ㄴ다   |  VERB   |     VV+EC     |   _   |  16  | ccomp  |  _   | SpaceAfter=No |
+|  14  |    "     |      "       |  PUNCT  |      SS       |   _   |  13  | punct  |  _   | SpaceAfter=No |
+|  15  |    고    |      고      |   ADP   |      JKQ      |   _   |  13  |  case  |  _   |       _       |
+|  16  | 말한다.  | 말 하 ㄴ다 . |  VERB   | NNG+XSV+EF+SF |   _   |  0   |  root  |  _   |       _       |
 
 
 
@@ -79,7 +85,6 @@ Transition-based 의존 구문 파서를 위한 데이터 변환
 
 - python 3.6
 
-  
 
 # Execution
 
